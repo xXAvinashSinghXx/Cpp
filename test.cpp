@@ -1,54 +1,60 @@
 #include <iostream>
+#include <vector>
+#include <sstream>
+
 using namespace std;
 
+long long convertToNumber(string numStr) {
+    char suffix = numStr.back();
+    long long multiplier = 1;
+
+    if (suffix == 'k' || suffix == 'K') multiplier = 1000;
+    else if (suffix == 'm' || suffix == 'M') multiplier = 1000000;
+    else if (suffix == 'b' || suffix == 'B') multiplier = 1000000000;
+    else if (suffix == 't' || suffix == 'T') multiplier = 1000000000000LL;
+    else return stoll(numStr); 
+
+    numStr.pop_back();
+    return stoll(numStr) * multiplier;
+}
+
+string formatWithCommas(long long num) {
+    string numStr = to_string(num);
+    int n = numStr.length();
+
+    string result;
+    int count = 0;
+
+    for (int i = n - 1; i >= 0; i--) {
+        result = numStr[i] + result;
+        count++;
+        if (count % 3 == 0 && i != 0) {
+            result = ',' + result;
+        }
+    }
+    return result;
+}
+
 int main() {
-  // We put "1" to indicate there is a ship.
-  bool ships[4][4] = {
-    { 0, 1, 1, 0 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 1, 0 },
-    { 0, 0, 1, 0 }
-  };
+    vector<long long> nums;
+    string input;
 
-  // Keep track of how many hits the player has and how many turns they have played in these variables
-  int hits = 0;
-  int numberOfTurns = 0;
+    cout << "Enter numbers separated by spaces (use k, m, b, t for large numbers): ";
+    getline(cin, input);
 
-  // Allow the player to keep going until they have hit all four ships
-  while (hits < 4) {
-    int row, column;
+    stringstream ss(input);
+    string numStr;
 
-    cout << "Selecting coordinates\n";
-
-    // Ask the player for a row
-    cout << "Choose a row number between 0 and 3: ";
-    cin >> row;
-
-    // Ask the player for a column
-    cout << "Choose a column number between 0 and 3: ";
-    cin >> column;
-
-    // Check if a ship exists in those coordinates
-    if (ships[row][column]) {
-      // If the player hit a ship, remove it by setting the value to zero.
-      ships[row][column] = 0;
-
-      // Increase the hit counter
-      hits++;
-
-      // Tell the player that they have hit a ship and how many ships are left
-      cout << "Hit! " << (4-hits) << " left.\n\n";
-    } else {
-      // Tell the player that they missed
-      cout << "Miss\n\n";
+    while (ss >> numStr) {
+        nums.push_back(convertToNumber(numStr));
     }
 
-    // Count how many turns the player has taken
-    numberOfTurns++;
-  }
+    long long sum = 0;
+    for (long long i : nums) {
+        sum += i;
+    }
 
-  cout << "Victory!\n";
-  cout << "You won in " << numberOfTurns << " turns";
-  
-  return 0;
+    cout << "Sum: " << formatWithCommas(sum) << endl;
+
+    return 0;
 }
